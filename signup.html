@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — OmniTech</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--dark);
+      position: relative;
+    }
+
+    .auth-page::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0,255,255,0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .auth-wrap {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-container {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      max-width: 1040px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid rgba(0,255,255,0.15);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 0 80px rgba(0,102,255,0.12), 0 0 160px rgba(0,255,255,0.04);
+    }
+
+    .auth-panel {
+      padding: 56px 48px;
+    }
+
+    .auth-brand {
+      border-right: 1px solid rgba(0,255,255,0.1);
+      background: linear-gradient(135deg, rgba(0,102,255,0.08) 0%, rgba(0,255,255,0.04) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .auth-brand-top .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .auth-brand-wordmark {
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .auth-brand-wordmark span {
+      color: var(--cyan);
+    }
+
+    .auth-brand-tagline {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .plan-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .plan-preview-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 2px;
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .plan-preview-item.active {
+      border-color: rgba(0,255,255,0.3);
+      background: rgba(0,255,255,0.06);
+    }
+
+    .plan-preview-item:hover {
+      border-color: rgba(0,255,255,0.2);
+    }
+
+    .plan-preview-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .plan-preview-desc {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 2px;
+    }
+
+    .plan-preview-price {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--cyan);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .auth-brand-bottom {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+    }
+
+    /* Form panel */
+    .auth-form-panel {
+      padding: 56px 48px;
+    }
+
+    .auth-form-header {
+      margin-bottom: 36px;
+    }
+
+    .auth-form-header .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .auth-form-header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .auth-form-header p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* Step indicator */
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      font-family: var(--mono);
+      letter-spacing: 0.08em;
+    }
+
+    .step.active {
+      color: var(--cyan);
+    }
+
+    .step.completed {
+      color: rgba(0,255,255,0.5);
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    .step.active .step-num {
+      background: var(--cyan);
+      color: var(--dark);
+      border-color: var(--cyan);
+    }
+
+    .step-connector {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0 12px;
+    }
+
+    /* Form layout */
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--white);
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+
+    .form-group select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    .form-group select option {
+      background: #1a1a2e;
+      color: var(--white);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0,255,255,0.08);
+    }
+
+    .form-group input::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* Password strength */
+    .password-strength {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .strength-bars {
+      display: flex;
+      gap: 4px;
+    }
+
+    .strength-bar {
+      width: 28px;
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      transition: background 0.3s;
+    }
+
+    .strength-bar.filled-weak { background: #ff4444; }
+    .strength-bar.filled-fair { background: #ffaa00; }
+    .strength-bar.filled-strong { background: #00cc66; }
+    .strength-bar.filled-max { background: var(--cyan); }
+
+    .strength-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+    }
+
+    /* Plan selector */
+    .plan-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .plan-option {
+      position: relative;
+    }
+
+    .plan-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .plan-option-label {
+      display: block;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .plan-option input[type="radio"]:checked + .plan-option-label {
+      border-color: var(--cyan);
+      background: rgba(0,255,255,0.06);
+    }
+
+    .plan-option-label:hover {
+      border-color: rgba(0,255,255,0.2);
+    }
+
+    .plan-option-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 2px;
+    }
+
+    .plan-option-price {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--cyan);
+    }
+
+    .plan-option-desc {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* Agreement */
+    .form-agree {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 2px;
+    }
+
+    .form-agree input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      margin-top: 1px;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    .form-agree p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+    }
+
+    .form-agree a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    .form-agree a:hover {
+      opacity: 0.75;
+    }
+
+    .btn-auth {
+      width: 100%;
+      display: block;
+      text-align: center;
+      padding: 14px 24px;
+      background: var(--blue);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      margin-bottom: 20px;
+      font-family: inherit;
+    }
+
+    .btn-auth:hover {
+      background: #0055dd;
+      box-shadow: 0 0 24px rgba(0,102,255,0.5);
+      transform: translateY(-1px);
+    }
+
+    .auth-footer-text {
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .auth-footer-text a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .auth-footer-text a:hover {
+      opacity: 0.75;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      margin: 28px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .field-note {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 900px) {
+      .auth-container {
+        grid-template-columns: 1fr;
+      }
+
+      .auth-brand {
+        border-right: none;
+        border-bottom: 1px solid rgba(0,255,255,0.1);
+        padding: 40px 32px;
+      }
+
+      .auth-brand-wordmark {
+        font-size: 36px;
+      }
+
+      .plan-preview {
+        display: none;
+      }
+
+      .auth-brand-bottom {
+        display: none;
+      }
+
+      .auth-form-panel {
+        padding: 40px 32px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .form-row-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .plan-selector {
+        grid-template-columns: 1fr;
+      }
+
+      .auth-panel,
+      .auth-brand,
+      .auth-form-panel {
+        padding: 32px 24px;
+      }
+
+      .auth-wrap {
+        padding: 100px 16px 60px;
+      }
+    }
+  </style>
+</head>
+<body class="auth-page">
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">OmniTech</a>
+      <ul class="nav-links">
+        <li><a href="products.html">Products</a></li>
+        <li><a href="services.html">Platform</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="careers.html">Careers</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="signin.html" class="btn btn-outline">Sign In</a>
+        <a href="signup.html" class="btn btn-primary" style="pointer-events:none; opacity:0.5;">Create Account</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="auth-wrap">
+    <div class="auth-container">
+
+      <!-- Brand Panel -->
+      <div class="auth-panel auth-brand">
+        <div class="auth-brand-top">
+          <div class="label">OmniID — Account Creation</div>
+          <div class="auth-brand-wordmark">Omni<span>Tech</span></div>
+          <p class="auth-brand-tagline">Create your OmniID and join the unified ecosystem. Every OmniTech product works better when connected to your account.</p>
+
+          <div class="plan-preview">
+            <div class="plan-preview-item active" data-plan="free">
+              <div>
+                <div class="plan-preview-name">OmniCloud Free</div>
+                <div class="plan-preview-desc">50 GB storage, basic sync</div>
+              </div>
+              <div class="plan-preview-price">$0 / mo</div>
+            </div>
+            <div class="plan-preview-item" data-plan="plus">
+              <div>
+                <div class="plan-preview-name">OmniCloud Plus</div>
+                <div class="plan-preview-desc">500 GB, priority sync, OmniAI</div>
+              </div>
+              <div class="plan-preview-price">$4.99 / mo</div>
+            </div>
+            <div class="plan-preview-item" data-plan="pro">
+              <div>
+                <div class="plan-preview-name">OmniCloud Pro</div>
+                <div class="plan-preview-desc">2 TB, unlimited OmniAI, family share</div>
+              </div>
+              <div class="plan-preview-price">$9.99 / mo</div>
+            </div>
+            <div class="plan-preview-item" data-plan="enterprise">
+              <div>
+                <div class="plan-preview-name">Enterprise</div>
+                <div class="plan-preview-desc">OmniFleet, custom storage, SLA</div>
+              </div>
+              <div class="plan-preview-price">Custom</div>
+            </div>
+          </div>
+        </div>
+        <div class="auth-brand-bottom">
+          OmniTech Corp — Exton, PA — Est. 2026
+        </div>
+      </div>
+
+      <!-- Form Panel -->
+      <div class="auth-panel auth-form-panel">
+        <div class="auth-form-header">
+          <div class="label">New Account</div>
+          <h1>Create your OmniID</h1>
+          <p>Set up your account in under two minutes</p>
+        </div>
+
+        <!-- Step indicator -->
+        <div class="step-indicator">
+          <div class="step active" id="step-1">
+            <div class="step-num">1</div>
+            <span>Identity</span>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step" id="step-2">
+            <div class="step-num">2</div>
+            <span>Security</span>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step" id="step-3">
+            <div class="step-num">3</div>
+            <span>Plan</span>
+          </div>
+        </div>
+
+        <form id="signup-form" onsubmit="handleSignUp(event)">
+
+          <!-- Step 1: Identity -->
+          <div id="form-step-1">
+            <div class="section-label">Personal Information</div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="first-name">First Name</label>
+                <input type="text" id="first-name" name="first_name" placeholder="First" autocomplete="given-name" required />
+              </div>
+              <div class="form-group">
+                <label for="last-name">Last Name</label>
+                <input type="text" id="last-name" name="last_name" placeholder="Last" autocomplete="family-name" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+              <p class="field-note">This becomes your OmniID. Used to sign in across all devices.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="country">Country / Region</label>
+              <select id="country" name="country" required>
+                <option value="" disabled selected>Select your region</option>
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="GB">United Kingdom</option>
+                <option value="AU">Australia</option>
+                <option value="DE">Germany</option>
+                <option value="FR">France</option>
+                <option value="JP">Japan</option>
+                <option value="SG">Singapore</option>
+                <option value="IN">India</option>
+                <option value="BR">Brazil</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+
+            <button type="button" class="btn-auth" onclick="nextStep(2)">Continue to Security</button>
+          </div>
+
+          <!-- Step 2: Security (hidden initially) -->
+          <div id="form-step-2" style="display:none;">
+            <div class="section-label">Account Security</div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" placeholder="Minimum 12 characters" autocomplete="new-password" oninput="checkStrength(this.value)" required />
+              <div class="password-strength">
+                <div class="strength-bars">
+                  <div class="strength-bar" id="bar-1"></div>
+                  <div class="strength-bar" id="bar-2"></div>
+                  <div class="strength-bar" id="bar-3"></div>
+                  <div class="strength-bar" id="bar-4"></div>
+                </div>
+                <span class="strength-label" id="strength-label">Enter password</span>
+              </div>
+              <p class="field-note">Minimum 12 characters. OmniChip HSM encrypts credentials locally — your password is never transmitted in plaintext.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="confirm-password">Confirm Password</label>
+              <input type="password" id="confirm-password" name="confirm_password" placeholder="Re-enter password" autocomplete="new-password" required />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Recovery Phone (optional)</label>
+              <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" autocomplete="tel" />
+              <p class="field-note">Used only for account recovery. Never shared or used for marketing.</p>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-bottom:0;">
+              <button type="button" class="btn-auth" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); flex:0 0 auto; width:auto; padding:14px 24px;" onclick="prevStep(1)">Back</button>
+              <button type="button" class="btn-auth" style="flex:1;" onclick="nextStep(3)">Continue to Plan</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Plan (hidden initially) -->
+          <div id="form-step-3" style="display:none;">
+            <div class="section-label">Choose OmniCloud Plan</div>
+
+            <div class="plan-selector">
+              <div class="plan-option">
+                <input type="radio" name="plan" id="plan-free" value="free" checked />
+                <label class="plan-option-label" for="plan-free">
+                  <div class="plan-option-name">Free</div>
+                  <div class="plan-option-price">$0 / month</div>
+                  <div class="plan-option-desc">50 GB storage, basic sync, OmniOS essentials</div>
+                </label>
+              </div>
+              <div class="plan-option">
+                <input type="radio" name="plan" id="plan-plus" value="plus" />
+                <label class="plan-option-label" for="plan-plus">
+                  <div class="plan-option-name">Plus</div>
+                  <div class="plan-option-price">$4.99 / month</div>
+                  <div class="plan-option-desc">500 GB, priority sync, OmniAI access</div>
+                </label>
+              </div>
+              <div class="plan-option">
+                <input type="radio" name="plan" id="plan-pro" value="pro" />
+                <label class="plan-option-label" for="plan-pro">
+                  <div class="plan-option-name">Pro</div>
+                  <div class="plan-option-price">$9.99 / month</div>
+                  <div class="plan-option-desc">2 TB, unlimited OmniAI, family sharing (5 members)</div>
+                </label>
+              </div>
+              <div class="plan-option">
+                <input type="radio" name="plan" id="plan-enterprise" value="enterprise" />
+                <label class="plan-option-label" for="plan-enterprise">
+                  <div class="plan-option-name">Enterprise</div>
+                  <div class="plan-option-price">Contact sales</div>
+                  <div class="plan-option-desc">OmniFleet MDM, custom storage, dedicated SLA</div>
+                </label>
+              </div>
+            </div>
+
+            <p class="field-note" style="margin-bottom:20px;">All plans include a 90-day free trial. No credit card required for the Free plan. Plans can be changed at any time from your account settings.</p>
+
+            <div class="form-agree">
+              <input type="checkbox" id="agree-terms" name="agree_terms" required />
+              <p>
+                By creating an account, I agree to the OmniTech
+                <a href="#">Terms of Service</a>,
+                <a href="#">Privacy Policy</a>, and
+                <a href="#">OmniCloud Subscriber Agreement</a>.
+                I understand that my data is processed under OmniTech's zero-knowledge privacy architecture.
+              </p>
+            </div>
+
+            <div class="form-agree" style="margin-bottom:28px;">
+              <input type="checkbox" id="agree-marketing" name="agree_marketing" />
+              <p>
+                Send me product announcements, OmniTech release notes, and ecosystem updates.
+                You can unsubscribe at any time.
+              </p>
+            </div>
+
+            <div style="display:flex; gap:12px;">
+              <button type="button" class="btn-auth" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); flex:0 0 auto; width:auto; padding:14px 24px;" onclick="prevStep(2)">Back</button>
+              <button type="submit" class="btn-auth" style="flex:1;" id="submit-btn">Create OmniID</button>
+            </div>
+          </div>
+
+        </form>
+
+        <p class="auth-footer-text" style="margin-top:24px;">
+          Already have an OmniID? <a href="signin.html">Sign in</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <div class="footer-logo">OmniTech</div>
+        <p class="footer-desc">Building the unified technology ecosystem for the next generation of human-computer interaction.</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Products</div>
+        <ul class="footer-links">
+          <li><a href="products.html#devices">Personal Devices</a></li>
+          <li><a href="products.html#home">Smart Home</a></li>
+          <li><a href="products.html#immersive">Immersive Computing</a></li>
+          <li><a href="products.html#enterprise">Enterprise</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Platform</div>
+        <ul class="footer-links">
+          <li><a href="services.html#omnios">OmniOS</a></li>
+          <li><a href="services.html#omni-ai">OmniAI</a></li>
+          <li><a href="services.html#omnicloud">OmniCloud</a></li>
+          <li><a href="services.html#omnidev">OmniDev</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Company</div>
+        <ul class="footer-links">
+          <li><a href="about.html">About</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>2026 OmniTech Corp. All rights reserved.</span>
+      <span>Exton, Pennsylvania</span>
+    </div>
+  </footer>
+
+  <script>
+    // Step navigation
+    function nextStep(num) {
+      if (num === 2) {
+        const email = document.getElementById('email').value;
+        const firstName = document.getElementById('first-name').value;
+        const lastName = document.getElementById('last-name').value;
+        const country = document.getElementById('country').value;
+        if (!firstName || !lastName || !email || !country) {
+          alert('Please complete all required fields before continuing.');
+          return;
+        }
+      }
+      if (num === 3) {
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('confirm-password').value;
+        if (!password || password.length < 12) {
+          alert('Password must be at least 12 characters.');
+          return;
+        }
+        if (password !== confirm) {
+          alert('Passwords do not match. Please re-enter.');
+          return;
+        }
+      }
+
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById('form-step-' + i).style.display = 'none';
+        const stepEl = document.getElementById('step-' + i);
+        stepEl.classList.remove('active', 'completed');
+        if (i < num) stepEl.classList.add('completed');
+      }
+      document.getElementById('form-step-' + num).style.display = 'block';
+      document.getElementById('step-' + num).classList.add('active');
+    }
+
+    function prevStep(num) {
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById('form-step-' + i).style.display = 'none';
+        const stepEl = document.getElementById('step-' + i);
+        stepEl.classList.remove('active', 'completed');
+        if (i < num) stepEl.classList.add('completed');
+      }
+      document.getElementById('form-step-' + num).style.display = 'block';
+      document.getElementById('step-' + num).classList.add('active');
+    }
+
+    // Password strength
+    function checkStrength(val) {
+      const bars = [
+        document.getElementById('bar-1'),
+        document.getElementById('bar-2'),
+        document.getElementById('bar-3'),
+        document.getElementById('bar-4'),
+      ];
+      const label = document.getElementById('strength-label');
+
+      bars.forEach(b => b.className = 'strength-bar');
+
+      if (!val) { label.textContent = 'Enter password'; return; }
+
+      let score = 0;
+      if (val.length >= 12) score++;
+      if (val.length >= 16) score++;
+      if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      if (score <= 1) {
+        bars[0].classList.add('filled-weak');
+        label.textContent = 'Weak';
+        label.style.color = '#ff4444';
+      } else if (score === 2) {
+        bars[0].classList.add('filled-fair');
+        bars[1].classList.add('filled-fair');
+        label.textContent = 'Fair';
+        label.style.color = '#ffaa00';
+      } else if (score === 3 || score === 4) {
+        bars[0].classList.add('filled-strong');
+        bars[1].classList.add('filled-strong');
+        bars[2].classList.add('filled-strong');
+        label.textContent = 'Strong';
+        label.style.color = '#00cc66';
+      } else {
+        bars.forEach(b => b.classList.add('filled-max'));
+        label.textContent = 'Excellent';
+        label.style.color = 'var(--cyan)';
+      }
+    }
+
+    // Plan preview sync
+    document.querySelectorAll('.plan-preview-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.plan-preview-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const plan = item.dataset.plan;
+        const radio = document.getElementById('plan-' + plan);
+        if (radio) radio.checked = true;
+      });
+    });
+
+    document.querySelectorAll('input[name="plan"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        document.querySelectorAll('.plan-preview-item').forEach(i => i.classList.remove('active'));
+        const previewItem = document.querySelector('[data-plan="' + radio.value + '"]');
+        if (previewItem) previewItem.classList.add('active');
+      });
+    });
+
+    // Form submit
+    function handleSignUp(e) {
+      e.preventDefault();
+      const agreed = document.getElementById('agree-terms').checked;
+      if (!agreed) {
+        alert('You must accept the Terms of Service to create an OmniID.');
+        return;
+      }
+      const btn = document.getElementById('submit-btn');
+      btn.textContent = 'Creating your OmniID...';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const country = document.getElementById('country').value;
+      const plan = document.querySelector('input[name="plan"]:checked')?.value || 'free';
+
+      const planLabels = { free: 'Free', plus: 'Plus', pro: 'Pro', enterprise: 'Enterprise' };
+      const planStorage = { free: 50, plus: 500, pro: 2048, enterprise: 999999 };
+
+      setTimeout(() => {
+        const session = {
+          name: firstName + ' ' + lastName,
+          email,
+          role: 'user',
+          title: 'OmniTech Member',
+          plan: planLabels[plan] || 'Free',
+          joined: new Date().toISOString().split('T')[0],
+          location: country,
+          devices: [],
+          storage_used: 0,
+          storage_total: planStorage[plan] || 50,
+          new_account: true
+        };
+        localStorage.setItem('omni_session', JSON.stringify(session));
+        window.location.href = 'account.html';
+      }, 2000);
+    }
+  </script>
+
+</body>
+</html>

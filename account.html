@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account — OmniTech</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { background: var(--dark); }
+
+    /* ── Layout ── */
+    .dash-wrap {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+      padding-top: 64px;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      width: 240px;
+      height: calc(100vh - 64px);
+      background: rgba(255,255,255,0.02);
+      border-right: 1px solid rgba(255,255,255,0.06);
+      overflow-y: auto;
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-user {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .sidebar-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .sidebar-role {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .sidebar-plan {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 3px 8px;
+      background: rgba(0,102,255,0.15);
+      border: 1px solid rgba(0,102,255,0.3);
+      border-radius: 2px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: rgba(0,102,255,0.9);
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      padding: 16px 0;
+      flex: 1;
+    }
+
+    .sidebar-section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+      padding: 8px 20px 4px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+      border-left: 2px solid transparent;
+      user-select: none;
+    }
+
+    .sidebar-link:hover {
+      color: var(--white);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .sidebar-link.active {
+      color: var(--cyan);
+      border-left-color: var(--cyan);
+      background: rgba(0,255,255,0.04);
+    }
+
+    .sidebar-link .icon {
+      width: 16px;
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .sidebar-bottom {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .btn-signout {
+      width: 100%;
+      padding: 9px 16px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2px;
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      font-family: var(--mono);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-signout:hover {
+      border-color: rgba(255,80,80,0.5);
+      color: rgba(255,100,100,0.8);
+    }
+
+    /* ── Main content ── */
+    .dash-main {
+      margin-left: 240px;
+      padding: 40px 48px;
+      min-height: calc(100vh - 64px);
+    }
+
+    .dash-panel { display: none; }
+    .dash-panel.active { display: block; }
+
+    /* ── Panel header ── */
+    .panel-header {
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .panel-header .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .panel-header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+
+    .panel-header p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 6px;
+    }
+
+    /* ── Stat cards ── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 2px;
+      padding: 20px;
+    }
+
+    .stat-card .stat-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .stat-val {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .stat-card .stat-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 6px;
+    }
+
+    .stat-card .stat-delta {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      margin-top: 6px;
+    }
+
+    .stat-delta.up { background: rgba(0,204,102,0.15); color: #00cc66; }
+    .stat-delta.down { background: rgba(255,68,68,0.12); color: #ff6666; }
+
+    /* ── Info grid ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .info-block {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 2px;
+      padding: 24px;
+    }
+
+    .info-block h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-family: var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-row .key {
+      color: rgba(255,255,255,0.4);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .info-row .val {
+      color: var(--white);
+      text-align: right;
+    }
+
+    /* ── Storage bar ── */
+    .storage-bar-wrap {
+      margin-top: 12px;
+    }
+
+    .storage-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 8px;
+    }
+
+    .storage-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .storage-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    /* ── Device list ── */
+    .device-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .device-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 2px;
+    }
+
+    .device-item-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .device-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    .device-dot.offline { background: rgba(255,255,255,0.2); animation: none; }
+
+    .device-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .device-meta {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    .device-status {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .device-status.online { color: var(--cyan); }
+    .device-status.offline { color: rgba(255,255,255,0.25); }
+
+    /* ── Data table ── */
+    .data-table-wrap {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .data-table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .data-table-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+    }
+
+    .data-table-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      background: rgba(0,255,255,0.08);
+      border: 1px solid rgba(0,255,255,0.2);
+      color: var(--cyan);
+      border-radius: 2px;
+    }
+
+    table.dt {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table.dt th {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      text-align: left;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    table.dt td {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    table.dt tr:last-child td { border-bottom: none; }
+
+    table.dt tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .tag-green { background: rgba(0,204,102,0.12); color: #00cc66; border: 1px solid rgba(0,204,102,0.2); }
+    .tag-blue { background: rgba(0,102,255,0.12); color: #4d94ff; border: 1px solid rgba(0,102,255,0.2); }
+    .tag-cyan { background: rgba(0,255,255,0.08); color: var(--cyan); border: 1px solid rgba(0,255,255,0.2); }
+    .tag-orange { background: rgba(255,165,0,0.1); color: #ffaa44; border: 1px solid rgba(255,165,0,0.2); }
+    .tag-red { background: rgba(255,68,68,0.1); color: #ff6666; border: 1px solid rgba(255,68,68,0.2); }
+    .tag-gray { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
+
+    /* ── Activity log ── */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .activity-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      flex: 1;
+    }
+
+    .activity-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    /* ── Admin chart bar ── */
+    .mini-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 48px;
+      margin-top: 8px;
+    }
+
+    .mini-bar {
+      flex: 1;
+      background: linear-gradient(180deg, var(--cyan), var(--blue));
+      border-radius: 2px 2px 0 0;
+      opacity: 0.7;
+      min-height: 4px;
+      transition: opacity 0.2s;
+    }
+
+    .mini-bar:hover { opacity: 1; }
+
+    /* ── Payment card ── */
+    .payment-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 2px;
+      margin-bottom: 10px;
+    }
+
+    .payment-card-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .payment-card-icon {
+      width: 40px;
+      height: 26px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.05em;
+    }
+
+    .payment-card-number {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--white);
+      letter-spacing: 0.08em;
+    }
+
+    .payment-card-exp {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 2px;
+    }
+
+    /* ── Security items ── */
+    .security-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .security-item:last-child { border-bottom: none; }
+
+    .security-item-left h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    .security-item-left p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .toggle-btn {
+      padding: 6px 14px;
+      border-radius: 2px;
+      font-size: 11px;
+      font-family: var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid rgba(0,255,255,0.25);
+      background: rgba(0,255,255,0.06);
+      color: var(--cyan);
+      transition: all 0.2s;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(0,255,255,0.12);
+      border-color: var(--cyan);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1100px) {
+      .info-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .dash-wrap { grid-template-columns: 1fr; }
+      .sidebar { position: relative; width: 100%; height: auto; top: 0; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .dash-main { margin-left: 0; padding: 28px 20px; }
+    }
+
+    @media (max-width: 600px) {
+      .stat-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">OmniTech</a>
+      <ul class="nav-links">
+        <li><a href="products.html">Products</a></li>
+        <li><a href="services.html">Platform</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="careers.html">Careers</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+      </ul>
+      <div class="nav-actions">
+        <span id="nav-user-label" style="font-family:var(--mono); font-size:11px; color:var(--cyan); letter-spacing:0.08em;"></span>
+        <button onclick="signOut()" class="btn btn-outline" style="font-size:12px; padding:8px 18px;">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dash-wrap">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sb-avatar">?</div>
+        <div class="sidebar-name" id="sb-name">Loading...</div>
+        <div class="sidebar-role" id="sb-role"></div>
+        <div class="sidebar-plan" id="sb-plan"></div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- Populated by JS -->
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="btn-signout" onclick="signOut()">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main dashboard area -->
+    <main class="dash-main" id="dash-main">
+      <!-- Panels rendered by JS -->
+    </main>
+
+  </div>
+
+  <script>
+  // ═══════════════════════════════════════════════════════════
+  //  SESSION GUARD
+  // ═══════════════════════════════════════════════════════════
+  const raw = localStorage.getItem('omni_session') || sessionStorage.getItem('omni_session');
+  if (!raw) { window.location.href = 'signin.html'; }
+
+  const session = JSON.parse(raw);
+  const isAdmin = session.role === 'admin';
+
+  // ═══════════════════════════════════════════════════════════
+  //  SIMULATED DATA SETS
+  // ═══════════════════════════════════════════════════════════
+  const USERS_DB = [
+    { id: 'USR-0001', name: 'Mahmadarsh Vahora', email: 'mvahora2023@gmail.com', role: 'admin', plan: 'Enterprise', devices: 5, joined: '2026-01-15', status: 'active', storage: '847 GB' },
+    { id: 'USR-0002', name: 'Aisha Patel',       email: 'aisha.p@example.com',   role: 'user',  plan: 'Pro',        devices: 3, joined: '2026-02-03', status: 'active', storage: '1.2 TB' },
+    { id: 'USR-0003', name: 'Marcus Chen',        email: 'm.chen@techdemo.io',    role: 'user',  plan: 'Plus',       devices: 2, joined: '2026-02-18', status: 'active', storage: '234 GB' },
+    { id: 'USR-0004', name: 'Priya Sharma',       email: 'priya.s@omnidev.net',   role: 'dev',   plan: 'Pro',        devices: 4, joined: '2026-02-27', status: 'active', storage: '892 GB' },
+    { id: 'USR-0005', name: 'Jordan Williams',    email: 'jwilliams@corp.com',    role: 'user',  plan: 'Enterprise', devices: 8, joined: '2026-03-01', status: 'active', storage: '3.4 TB' },
+    { id: 'USR-0006', name: 'Sofia Nakamura',     email: 'sofia.n@design.co',     role: 'user',  plan: 'Free',       devices: 1, joined: '2026-03-10', status: 'active', storage: '12 GB' },
+    { id: 'USR-0007', name: 'Ethan Brooks',       email: 'ebrooks@startup.io',    role: 'user',  plan: 'Plus',       devices: 2, joined: '2026-03-14', status: 'active', storage: '178 GB' },
+    { id: 'USR-0008', name: 'Lena Fischer',       email: 'l.fischer@eu.example',  role: 'user',  plan: 'Pro',        devices: 3, joined: '2026-03-22', status: 'inactive', storage: '540 GB' },
+    { id: 'USR-0009', name: 'Rafael Torres',      email: 'r.torres@latam.net',    role: 'user',  plan: 'Free',       devices: 1, joined: '2026-04-01', status: 'active', storage: '8 GB' },
+    { id: 'USR-0010', name: 'Nadia Okonkwo',      email: 'nadia.o@africa.dev',    role: 'user',  plan: 'Plus',       devices: 2, joined: '2026-04-08', status: 'active', storage: '301 GB' },
+    { id: 'USR-0011', name: 'James Harrington',   email: 'j.harrington@law.com',  role: 'user',  plan: 'Enterprise', devices: 12, joined: '2026-04-12', status: 'active', storage: '7.1 TB' },
+    { id: 'USR-0012', name: 'Yuki Tanaka',        email: 'yuki.t@tokyo.jp',       role: 'user',  plan: 'Pro',        devices: 3, joined: '2026-04-20', status: 'active', storage: '710 GB' },
+  ];
+
+  const PRODUCTS_DB = [
+    { name: 'OmniPhone Ultra',   category: 'Personal Devices', price: '$1,199', status: 'active',  units: 142, reviews: 4.8 },
+    { name: 'OmniPhone Standard',category: 'Personal Devices', price: '$899',   status: 'active',  units: 289, reviews: 4.7 },
+    { name: 'OmniPhone SE',      category: 'Personal Devices', price: '$599',   status: 'active',  units: 517, reviews: 4.6 },
+    { name: 'OmniBook Studio',   category: 'Personal Devices', price: '$2,499', status: 'active',  units: 64,  reviews: 4.9 },
+    { name: 'OmniBook Pro',      category: 'Personal Devices', price: '$1,799', status: 'active',  units: 118, reviews: 4.8 },
+    { name: 'OmniBook Air',      category: 'Personal Devices', price: '$1,299', status: 'active',  units: 203, reviews: 4.7 },
+    { name: 'OmniWatch',         category: 'Personal Devices', price: '$399',   status: 'active',  units: 441, reviews: 4.6 },
+    { name: 'OmniBuds',          category: 'Personal Devices', price: '$249',   status: 'active',  units: 623, reviews: 4.5 },
+    { name: 'OmniFridge',        category: 'Smart Home',       price: '$2,199', status: 'active',  units: 37,  reviews: 4.7 },
+    { name: 'OmniWash',          category: 'Smart Home',       price: '$1,299', status: 'active',  units: 58,  reviews: 4.6 },
+    { name: 'OmniDish',          category: 'Smart Home',       price: '$899',   status: 'active',  units: 74,  reviews: 4.5 },
+    { name: 'OmniTherm',         category: 'Smart Home',       price: '$299',   status: 'active',  units: 312, reviews: 4.8 },
+    { name: 'OmniSecure',        category: 'Smart Home',       price: '$499',   status: 'active',  units: 187, reviews: 4.7 },
+    { name: 'OmniLight Hub',     category: 'Smart Home',       price: '$199',   status: 'active',  units: 498, reviews: 4.5 },
+    { name: 'OmniVR',            category: 'Immersive',        price: '$2,999', status: 'active',  units: 29,  reviews: 4.9 },
+    { name: 'OmniGlass',         category: 'Immersive',        price: '$1,499', status: 'active',  units: 41,  reviews: 4.8 },
+    { name: 'OmniFleet',         category: 'Enterprise',       price: 'Custom', status: 'active',  units: 18,  reviews: 4.9 },
+    { name: 'OmniAI for Work',   category: 'Enterprise',       price: 'Custom', status: 'active',  units: 11,  reviews: 4.8 },
+  ];
+
+  const ACTIVITY_LOG = [
+    { type: 'security', text: 'New sign-in from Exton, PA — Chrome / Windows', time: 'Just now', color: '#4d94ff' },
+    { type: 'device',   text: 'OmniPhone Ultra synced — 847 GB used',           time: '2 min ago',  color: '#00ffff' },
+    { type: 'system',   text: 'OmniCloud backup completed — all 5 devices',     time: '14 min ago', color: '#00cc66' },
+    { type: 'account',  text: 'Enterprise subscription auto-renewed',           time: '1 day ago',  color: '#4d94ff' },
+    { type: 'device',   text: 'OmniBook Studio registered to account',          time: '3 days ago', color: '#00ffff' },
+    { type: 'security', text: 'Password changed successfully',                  time: '1 week ago', color: '#ffaa44' },
+    { type: 'account',  text: 'OmniID created and verified',                   time: '2026-01-15', color: '#00cc66' },
+  ];
+
+  const REVIEWS_DB = [
+    { product: 'OmniPhone Ultra',  user: 'Marcus Chen',     rating: 5, text: 'The camera system is on another level. OmniAI scene detection is genuinely impressive.', date: '2026-04-18', status: 'approved' },
+    { product: 'OmniVR',           user: 'Priya Sharma',    rating: 5, text: 'Spatial OS is the future. The resolution-per-eye beats everything else on the market.', date: '2026-04-21', status: 'approved' },
+    { product: 'OmniBook Studio',  user: 'Yuki Tanaka',     rating: 5, text: 'M2 Max performance with 22 hours of battery is not something I expected to be real.', date: '2026-04-24', status: 'approved' },
+    { product: 'OmniTherm',        user: 'Sofia Nakamura',  rating: 4, text: 'Learning my schedule took about 5 days, now I barely think about climate control.', date: '2026-04-25', status: 'approved' },
+    { product: 'OmniWash',         user: 'Nadia Okonkwo',   rating: 4, text: 'CleanSync works well. Would like more granular app controls.', date: '2026-04-26', status: 'pending' },
+    { product: 'OmniBuds',         user: 'Ethan Brooks',    rating: 3, text: 'ANC is solid but spatial audio feels gimmicky for music. Good for calls.', date: '2026-04-27', status: 'pending' },
+  ];
+
+  // ═══════════════════════════════════════════════════════════
+  //  INITIALIZE
+  // ═══════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', () => {
+    // Nav label
+    document.getElementById('nav-user-label').textContent = session.name;
+
+    // Sidebar user block
+    const initials = session.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    document.getElementById('sb-avatar').textContent = initials;
+    document.getElementById('sb-name').textContent = session.name;
+    document.getElementById('sb-role').textContent = session.title || (isAdmin ? 'Founder & CEO' : 'OmniTech Member');
+    document.getElementById('sb-plan').textContent = 'OmniCloud ' + (session.plan || 'Free');
+
+    if (isAdmin) {
+      document.getElementById('sb-plan').style.background = 'rgba(0,255,255,0.08)';
+      document.getElementById('sb-plan').style.borderColor = 'rgba(0,255,255,0.3)';
+      document.getElementById('sb-plan').style.color = 'var(--cyan)';
+    }
+
+    buildSidebar();
+    renderPanel('overview');
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  //  SIDEBAR BUILDER
+  // ═══════════════════════════════════════════════════════════
+  function buildSidebar() {
+    const nav = document.getElementById('sidebar-nav');
+    const userLinks = [
+      { id: 'overview',  icon: '▣', label: 'Overview' },
+      { id: 'devices',   icon: '◈', label: 'My Devices' },
+      { id: 'storage',   icon: '◉', label: 'OmniCloud Storage' },
+      { id: 'payments',  icon: '◎', label: 'Payment & Plan' },
+      { id: 'security',  icon: '◆', label: 'Security' },
+      { id: 'activity',  icon: '◷', label: 'Activity Log' },
+      { id: 'profile',   icon: '◐', label: 'Profile Settings' },
+    ];
+    const adminLinks = [
+      { id: 'admin-overview', icon: '◈', label: 'Admin Overview' },
+      { id: 'admin-users',    icon: '◎', label: 'User Management' },
+      { id: 'admin-products', icon: '◉', label: 'Product Catalog' },
+      { id: 'admin-reviews',  icon: '◆', label: 'Reviews & Moderation' },
+      { id: 'admin-finance',  icon: '◐', label: 'Financial Dashboard' },
+      { id: 'admin-system',   icon: '◷', label: 'System Health' },
+    ];
+
+    let html = '';
+
+    if (isAdmin) {
+      html += '<div class="sidebar-section-label">My Account</div>';
+    }
+    userLinks.forEach(l => {
+      html += `<div class="sidebar-link" data-panel="${l.id}" onclick="renderPanel('${l.id}')"><span class="icon">${l.icon}</span> ${l.label}</div>`;
+    });
+
+    if (isAdmin) {
+      html += '<div class="sidebar-section-label" style="margin-top:16px;">Admin Controls</div>';
+      adminLinks.forEach(l => {
+        html += `<div class="sidebar-link" data-panel="${l.id}" onclick="renderPanel('${l.id}')"><span class="icon">${l.icon}</span> ${l.label}</div>`;
+      });
+    }
+
+    nav.innerHTML = html;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  PANEL ROUTER
+  // ═══════════════════════════════════════════════════════════
+  function renderPanel(id) {
+    document.querySelectorAll('.sidebar-link').forEach(l => {
+      l.classList.toggle('active', l.dataset.panel === id);
+    });
+
+    const main = document.getElementById('dash-main');
+    const panels = {
+      'overview':        renderOverview,
+      'devices':         renderDevices,
+      'storage':         renderStorage,
+      'payments':        renderPayments,
+      'security':        renderSecurity,
+      'activity':        renderActivity,
+      'profile':         renderProfile,
+      'admin-overview':  renderAdminOverview,
+      'admin-users':     renderAdminUsers,
+      'admin-products':  renderAdminProducts,
+      'admin-reviews':   renderAdminReviews,
+      'admin-finance':   renderAdminFinance,
+      'admin-system':    renderAdminSystem,
+    };
+
+    if (panels[id]) main.innerHTML = panels[id]();
+    else main.innerHTML = '<p style="color:var(--muted);">Panel not found.</p>';
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  USER PANELS
+  // ═══════════════════════════════════════════════════════════
+  function renderOverview() {
+    const storageUsed = session.storage_used || 0;
+    const storageTotal = session.storage_total || 50;
+    const storagePct = Math.min(100, Math.round((storageUsed / storageTotal) * 100));
+    const devCount = (session.devices || []).length;
+    const joined = session.joined || '2026-01-15';
+
+    return `
+      <div class="panel-header">
+        <div class="label">Account</div>
+        <h1>Welcome back, ${session.name.split(' ')[0]}.</h1>
+        <p>Your OmniID dashboard — devices, storage, plan, and account security at a glance.</p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Connected Devices</div>
+          <div class="stat-val">${devCount}</div>
+          <div class="stat-sub">Across your OmniID</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cloud Storage Used</div>
+          <div class="stat-val">${storageUsed >= 1000 ? (storageUsed/1024).toFixed(1) + ' TB' : storageUsed + ' GB'}</div>
+          <div class="stat-sub">of ${storageTotal >= 1000 ? (storageTotal/1024).toFixed(0) + ' TB' : storageTotal + ' GB'} total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Plan</div>
+          <div class="stat-val" style="font-size:20px; padding-top:4px;">${session.plan || 'Free'}</div>
+          <div class="stat-sub">OmniCloud subscription</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Member Since</div>
+          <div class="stat-val" style="font-size:18px; padding-top:4px;">${joined}</div>
+          <div class="stat-sub">OmniID creation date</div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-block">
+          <h3>Account Summary</h3>
+          <div class="info-row"><span class="key">Full Name</span><span class="val">${session.name}</span></div>
+          <div class="info-row"><span class="key">OmniID Email</span><span class="val">${session.email}</span></div>
+          <div class="info-row"><span class="key">Role</span><span class="val">${session.title || 'OmniTech Member'}</span></div>
+          <div class="info-row"><span class="key">Location</span><span class="val">${session.location || 'Not set'}</span></div>
+          <div class="info-row"><span class="key">Account Type</span><span class="val"><span class="tag ${isAdmin ? 'tag-cyan' : 'tag-blue'}">${isAdmin ? 'Admin' : 'Standard'}</span></span></div>
+        </div>
+        <div class="info-block">
+          <h3>OmniCloud Storage</h3>
+          <div class="storage-bar-wrap">
+            <div class="storage-label-row">
+              <span>${storageUsed >= 1000 ? (storageUsed/1024).toFixed(1) + ' TB' : storageUsed + ' GB'} used</span>
+              <span>${storagePct}%</span>
+            </div>
+            <div class="storage-bar"><div class="storage-fill" style="width:${storagePct}%"></div></div>
+            <div class="storage-label-row" style="margin-top:8px;">
+              <span>Plan: OmniCloud ${session.plan || 'Free'}</span>
+              <span>${storageTotal >= 1000 ? (storageTotal/1024).toFixed(0) + ' TB' : storageTotal + ' GB'} total</span>
+            </div>
+          </div>
+          <div style="margin-top:16px;">
+            <div class="info-row"><span class="key">Photos & Videos</span><span class="val" style="color:var(--cyan);">${Math.round(storageUsed * 0.54)} GB</span></div>
+            <div class="info-row"><span class="key">Documents</span><span class="val" style="color:var(--cyan);">${Math.round(storageUsed * 0.18)} GB</span></div>
+            <div class="info-row"><span class="key">Device Backups</span><span class="val" style="color:var(--cyan);">${Math.round(storageUsed * 0.28)} GB</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-block" style="margin-bottom:24px;">
+        <h3>Recent Activity</h3>
+        <div class="activity-list">
+          ${ACTIVITY_LOG.slice(0, 4).map(a => `
+            <div class="activity-item">
+              <div class="activity-dot" style="background:${a.color};"></div>
+              <span class="activity-text">${a.text}</span>
+              <span class="activity-time">${a.time}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDevices() {
+    const devs = session.devices && session.devices.length > 0
+      ? session.devices
+      : ['No devices registered'];
+
+    const deviceMeta = {
+      'OmniPhone Ultra':   { model: 'OmniChip X1 Pro · OmniOS Mobile 1.0', serial: 'OPU-2026-' + Math.floor(1000+Math.random()*9000) },
+      'OmniPhone Standard':{ model: 'OmniChip X1 · OmniOS Mobile 1.0',     serial: 'OPS-2026-' + Math.floor(1000+Math.random()*9000) },
+      'OmniPhone SE':      { model: 'OmniChip X1 · OmniOS Mobile 1.0',     serial: 'OPSE-2026-'+ Math.floor(1000+Math.random()*9000) },
+      'OmniBook Studio':   { model: 'OmniChip M2 Max · OmniOS Desktop 1.0',serial: 'OBS-2026-' + Math.floor(1000+Math.random()*9000) },
+      'OmniBook Pro':      { model: 'OmniChip M2 Pro · OmniOS Desktop 1.0',serial: 'OBP-2026-' + Math.floor(1000+Math.random()*9000) },
+      'OmniBook Air':      { model: 'OmniChip M1 · OmniOS Desktop 1.0',    serial: 'OBA-2026-' + Math.floor(1000+Math.random()*9000) },
+      'OmniWatch':         { model: 'OmniChip W1 · OmniOS Watch 1.0',       serial: 'OW-2026-'  + Math.floor(1000+Math.random()*9000) },
+      'OmniGlass':         { model: 'OmniChip G1 · OmniOS Immersive 1.0',  serial: 'OG-2026-'  + Math.floor(1000+Math.random()*9000) },
+      'OmniVR':            { model: 'OmniChip X1 Spatial · OmniOS VR 1.0', serial: 'OVR-2026-' + Math.floor(1000+Math.random()*9000) },
+    };
+
+    return `
+      <div class="panel-header">
+        <div class="label">Devices</div>
+        <h1>Connected Devices</h1>
+        <p>All OmniTech hardware registered to your OmniID. Devices sync automatically via OmniCloud.</p>
+      </div>
+
+      ${devs[0] === 'No devices registered' ? `
+        <div class="info-block" style="text-align:center; padding:48px;">
+          <p style="color:var(--muted); font-size:14px; margin-bottom:16px;">No devices linked to your OmniID yet.</p>
+          <a href="products.html" class="btn btn-primary">Explore Products</a>
+        </div>
+      ` : `
+        <div class="device-list" style="margin-bottom:24px;">
+          ${devs.map((d, i) => {
+            const meta = deviceMeta[d] || { model: 'OmniTech Device', serial: 'OT-2026-' + (1000+i) };
+            const online = i < 2;
+            return `
+              <div class="device-item">
+                <div class="device-item-left">
+                  <div class="device-dot ${online ? '' : 'offline'}"></div>
+                  <div>
+                    <div class="device-name">${d}</div>
+                    <div class="device-meta">${meta.model} &nbsp;·&nbsp; S/N: ${meta.serial}</div>
+                  </div>
+                </div>
+                <span class="device-status ${online ? 'online' : 'offline'}">${online ? 'Online' : 'Offline'}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <div style="text-align:right;">
+          <a href="products.html" class="btn btn-outline" style="font-size:12px;">Add Another Device</a>
+        </div>
+      `}
+    `;
+  }
+
+  function renderStorage() {
+    const storageUsed = session.storage_used || 0;
+    const storageTotal = session.storage_total || 50;
+    const storagePct = Math.min(100, Math.round((storageUsed / storageTotal) * 100));
+
+    const categories = [
+      { name: 'Photos & Videos', pct: 54, color: '#0066ff' },
+      { name: 'Device Backups',  pct: 28, color: '#00ffff' },
+      { name: 'Documents',       pct: 12, color: '#7c66ff' },
+      { name: 'Other',           pct: 6,  color: 'rgba(255,255,255,0.2)' },
+    ];
+
+    return `
+      <div class="panel-header">
+        <div class="label">OmniCloud</div>
+        <h1>Storage & Sync</h1>
+        <p>Real-time storage breakdown across all your devices and content types.</p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Used</div>
+          <div class="stat-val">${storageUsed >= 1000 ? (storageUsed/1024).toFixed(1) + ' TB' : storageUsed + ' GB'}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Available</div>
+          <div class="stat-val">${((storageTotal - storageUsed) >= 1000 ? ((storageTotal - storageUsed)/1024).toFixed(1) + ' TB' : (storageTotal - storageUsed) + ' GB')}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Capacity</div>
+          <div class="stat-val">${storageTotal >= 1000 ? (storageTotal/1024).toFixed(0) + ' TB' : storageTotal + ' GB'}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Plan Tier</div>
+          <div class="stat-val" style="font-size:20px; padding-top:4px;">${session.plan || 'Free'}</div>
+        </div>
+      </div>
+
+      <div class="info-block" style="margin-bottom:24px;">
+        <h3>Storage Breakdown</h3>
+        <div class="storage-bar-wrap" style="margin-bottom:24px;">
+          <div class="storage-label-row">
+            <span>${storageUsed} GB used of ${storageTotal >= 1000 ? (storageTotal/1024).toFixed(0) + ' TB' : storageTotal + ' GB'}</span>
+            <span>${storagePct}%</span>
+          </div>
+          <div class="storage-bar" style="height:10px;"><div class="storage-fill" style="width:${storagePct}%"></div></div>
+        </div>
+        ${categories.map(c => `
+          <div class="info-row">
+            <span class="key" style="display:flex; align-items:center; gap:8px;">
+              <span style="width:8px; height:8px; border-radius:50%; background:${c.color}; display:inline-block;"></span>
+              ${c.name}
+            </span>
+            <span class="val">${Math.round(storageUsed * c.pct / 100)} GB &nbsp;<span style="color:rgba(255,255,255,0.25); font-size:11px;">(${c.pct}%)</span></span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="text-align:right;">
+        <a href="pricing.html" class="btn btn-primary" style="font-size:13px;">Upgrade Storage Plan</a>
+      </div>
+    `;
+  }
+
+  function renderPayments() {
+    return `
+      <div class="panel-header">
+        <div class="label">Billing</div>
+        <h1>Payment & Plan</h1>
+        <p>Manage your OmniCloud subscription, payment methods, and billing history.</p>
+      </div>
+
+      <div class="info-block" style="margin-bottom:20px;">
+        <h3>Current Plan</h3>
+        <div class="info-row"><span class="key">Plan</span><span class="val">OmniCloud ${session.plan || 'Free'}</span></div>
+        ${session.plan === 'Free' ? `<div class="info-row"><span class="key">Monthly Cost</span><span class="val">$0.00</span></div>` : ''}
+        ${session.plan === 'Plus' ? `<div class="info-row"><span class="key">Monthly Cost</span><span class="val">$4.99 / month</span></div>` : ''}
+        ${session.plan === 'Pro'  ? `<div class="info-row"><span class="key">Monthly Cost</span><span class="val">$9.99 / month</span></div>` : ''}
+        ${session.plan === 'Enterprise' ? `<div class="info-row"><span class="key">Annual Contract</span><span class="val">Custom — contact finance@omnitech.com</span></div>` : ''}
+        <div class="info-row"><span class="key">Next Renewal</span><span class="val">2026-05-15</span></div>
+        <div class="info-row"><span class="key">Billing Cycle</span><span class="val">Monthly</span></div>
+        <div style="margin-top:16px; display:flex; gap:12px;">
+          <a href="pricing.html" class="btn btn-primary" style="font-size:12px;">Change Plan</a>
+          <button class="btn btn-outline" style="font-size:12px;" onclick="alert('Cancel flow would appear here.')">Cancel Plan</button>
+        </div>
+      </div>
+
+      <div class="info-block" style="margin-bottom:20px;">
+        <h3>Payment Methods</h3>
+        <div class="payment-card">
+          <div class="payment-card-left">
+            <div class="payment-card-icon">VISA</div>
+            <div>
+              <div class="payment-card-number">•••• •••• •••• 4242</div>
+              <div class="payment-card-exp">Expires 09/28 &nbsp;·&nbsp; <span class="tag tag-green" style="font-size:9px;">Default</span></div>
+            </div>
+          </div>
+          <button class="toggle-btn" onclick="alert('Card management would appear here.')">Manage</button>
+        </div>
+        <button class="btn btn-outline" style="font-size:12px; margin-top:12px;" onclick="alert('Add payment method flow here.')">Add Payment Method</button>
+      </div>
+
+      <div class="info-block">
+        <h3>Billing History</h3>
+        <table class="dt">
+          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>2026-04-15</td><td>OmniCloud ${session.plan || 'Free'} — April</td><td>${session.plan === 'Pro' ? '$9.99' : session.plan === 'Plus' ? '$4.99' : session.plan === 'Enterprise' ? 'Contract' : '$0.00'}</td><td><span class="tag tag-green">Paid</span></td></tr>
+            <tr><td>2026-03-15</td><td>OmniCloud ${session.plan || 'Free'} — March</td><td>${session.plan === 'Pro' ? '$9.99' : session.plan === 'Plus' ? '$4.99' : session.plan === 'Enterprise' ? 'Contract' : '$0.00'}</td><td><span class="tag tag-green">Paid</span></td></tr>
+            <tr><td>2026-02-15</td><td>OmniCloud ${session.plan || 'Free'} — February</td><td>${session.plan === 'Pro' ? '$9.99' : session.plan === 'Plus' ? '$4.99' : session.plan === 'Enterprise' ? 'Contract' : '$0.00'}</td><td><span class="tag tag-green">Paid</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderSecurity() {
+    return `
+      <div class="panel-header">
+        <div class="label">Security</div>
+        <h1>Security Settings</h1>
+        <p>Manage authentication, OmniChip HSM status, and access controls for your OmniID.</p>
+      </div>
+
+      <div class="info-block" style="margin-bottom:20px;">
+        <h3>Authentication</h3>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Password</h4>
+            <p>Last changed — never shown in plaintext. Hardware-encrypted by OmniChip HSM.</p>
+          </div>
+          <button class="toggle-btn" onclick="alert('Password change flow would appear here.')">Change</button>
+        </div>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Biometric Authentication</h4>
+            <p>Sign in with Face ID, fingerprint, or OmniWatch proximity on supported devices.</p>
+          </div>
+          <button class="toggle-btn">Enabled</button>
+        </div>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Two-Factor Authentication</h4>
+            <p>Hardware security key + OmniWatch tap confirmation.</p>
+          </div>
+          <button class="toggle-btn">Enabled</button>
+        </div>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Recovery Email</h4>
+            <p>Backup contact for account recovery. Currently: ${session.email.replace(/(.{3}).+(@.+)/, '$1•••$2')}</p>
+          </div>
+          <button class="toggle-btn" onclick="alert('Recovery email management here.')">Update</button>
+        </div>
+      </div>
+
+      <div class="info-block" style="margin-bottom:20px;">
+        <h3>OmniChip HSM Status</h3>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Hardware Security Module</h4>
+            <p>All credentials encrypted and stored in OmniChip HSM — never in cloud.</p>
+          </div>
+          <span class="tag tag-green">Active</span>
+        </div>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Zero-Knowledge Architecture</h4>
+            <p>OmniTech cannot access your encrypted data — keys remain on-device.</p>
+          </div>
+          <span class="tag tag-green">Enforced</span>
+        </div>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>End-to-End Encryption</h4>
+            <p>All OmniCloud sync traffic encrypted in transit and at rest.</p>
+          </div>
+          <span class="tag tag-green">Active</span>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <h3>Active Sessions</h3>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Current Session — This Device</h4>
+            <p>Exton, PA &nbsp;·&nbsp; ${new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</p>
+          </div>
+          <span class="tag tag-cyan">Current</span>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-outline" style="font-size:12px;" onclick="alert('All other sessions would be terminated.')">Sign Out All Other Devices</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderActivity() {
+    return `
+      <div class="panel-header">
+        <div class="label">Audit</div>
+        <h1>Activity Log</h1>
+        <p>A complete record of account events, sign-ins, device changes, and security actions.</p>
+      </div>
+
+      <div class="info-block">
+        <h3>Recent Events</h3>
+        <div class="activity-list">
+          ${ACTIVITY_LOG.map(a => `
+            <div class="activity-item">
+              <div class="activity-dot" style="background:${a.color};"></div>
+              <div style="flex:1;">
+                <div class="activity-text">${a.text}</div>
+                <div style="font-family:var(--mono); font-size:10px; color:rgba(255,255,255,0.2); margin-top:3px; letter-spacing:0.08em; text-transform:uppercase;">${a.type}</div>
+              </div>
+              <span class="activity-time">${a.time}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderProfile() {
+    return `
+      <div class="panel-header">
+        <div class="label">Account</div>
+        <h1>Profile Settings</h1>
+        <p>Update your personal information, communication preferences, and OmniID details.</p>
+      </div>
+
+      <div class="info-block" style="margin-bottom:20px;">
+        <h3>Personal Information</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+          <div>
+            <label style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:rgba(255,255,255,0.4); text-transform:uppercase; display:block; margin-bottom:6px;">Full Name</label>
+            <input type="text" value="${session.name}" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:2px; padding:10px 14px; font-size:13px; color:var(--white); font-family:inherit; box-sizing:border-box;" />
+          </div>
+          <div>
+            <label style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:rgba(255,255,255,0.4); text-transform:uppercase; display:block; margin-bottom:6px;">OmniID Email</label>
+            <input type="email" value="${session.email}" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:2px; padding:10px 14px; font-size:13px; color:rgba(255,255,255,0.4); font-family:inherit; box-sizing:border-box;" disabled />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div>
+            <label style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:rgba(255,255,255,0.4); text-transform:uppercase; display:block; margin-bottom:6px;">Location / Region</label>
+            <input type="text" value="${session.location || 'Not set'}" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:2px; padding:10px 14px; font-size:13px; color:var(--white); font-family:inherit; box-sizing:border-box;" />
+          </div>
+          <div>
+            <label style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:rgba(255,255,255,0.4); text-transform:uppercase; display:block; margin-bottom:6px;">Role / Title</label>
+            <input type="text" value="${session.title || 'OmniTech Member'}" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:2px; padding:10px 14px; font-size:13px; color:rgba(255,255,255,0.4); font-family:inherit; box-sizing:border-box;" ${isAdmin ? '' : 'disabled'} />
+          </div>
+        </div>
+        <button class="btn btn-primary" style="font-size:13px;" onclick="alert('Profile saved successfully.')">Save Changes</button>
+      </div>
+
+      <div class="info-block" style="margin-bottom:20px;">
+        <h3>Preferences</h3>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>OmniAI Personalization</h4>
+            <p>Allow on-device OmniAI to learn your usage patterns for cross-device continuity.</p>
+          </div>
+          <button class="toggle-btn">Enabled</button>
+        </div>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Product Updates</h4>
+            <p>Receive OmniOS update notifications and new product announcements.</p>
+          </div>
+          <button class="toggle-btn">Enabled</button>
+        </div>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Marketing Communications</h4>
+            <p>OmniTech promotions, bundle offers, and ecosystem news.</p>
+          </div>
+          <button class="toggle-btn" style="border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.3);">Disabled</button>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <h3>Account Actions</h3>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Download Your Data</h4>
+            <p>Export all account data, device logs, and activity records.</p>
+          </div>
+          <button class="toggle-btn" onclick="alert('Data export would be prepared and emailed to you.')">Export</button>
+        </div>
+        <div class="security-item">
+          <div class="security-item-left">
+            <h4>Delete Account</h4>
+            <p style="color:rgba(255,100,100,0.7);">Permanently remove your OmniID and all associated data. This cannot be undone.</p>
+          </div>
+          <button class="toggle-btn" style="border-color:rgba(255,68,68,0.3); color:rgba(255,100,100,0.7);" onclick="alert('Account deletion requires identity verification. Contact privacy@omnitech.com.')">Delete</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  ADMIN PANELS
+  // ═══════════════════════════════════════════════════════════
+  function renderAdminOverview() {
+    const totalRevenue = '$2,847,320';
+    const mrr = '$238,943';
+    const totalUsers = USERS_DB.length;
+    const activeUsers = USERS_DB.filter(u => u.status === 'active').length;
+    const totalDevices = USERS_DB.reduce((s, u) => s + u.devices, 0);
+
+    return `
+      <div class="panel-header">
+        <div class="label">Admin — Restricted</div>
+        <h1>Company Overview</h1>
+        <p>Real-time platform metrics, user stats, and product performance. Visible to admin accounts only.</p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-val">${totalUsers}</div>
+          <div class="stat-delta up">+3 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Users</div>
+          <div class="stat-val">${activeUsers}</div>
+          <div class="stat-delta up">${Math.round(activeUsers/totalUsers*100)}% retention</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Registered Devices</div>
+          <div class="stat-val">${totalDevices}</div>
+          <div class="stat-delta up">avg ${(totalDevices/totalUsers).toFixed(1)} per user</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Products Sold (YTD)</div>
+          <div class="stat-val">3,521</div>
+          <div class="stat-delta up">+18% MoM</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">MRR</div>
+          <div class="stat-val" style="font-size:20px; padding-top:4px;">${mrr}</div>
+          <div class="stat-delta up">+22% vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Revenue YTD</div>
+          <div class="stat-val" style="font-size:20px; padding-top:4px;">${totalRevenue}</div>
+          <div class="stat-sub">Target: $200M by Y1</div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-block">
+          <h3>Plan Distribution</h3>
+          ${[
+            { plan: 'Free',       count: 3,  pct: 25, color: 'rgba(255,255,255,0.3)' },
+            { plan: 'Plus',       count: 3,  pct: 25, color: '#4d94ff' },
+            { plan: 'Pro',        count: 3,  pct: 25, color: '#00ffff' },
+            { plan: 'Enterprise', count: 3,  pct: 25, color: '#00cc66' },
+          ].map(p => `
+            <div class="info-row">
+              <span class="key" style="display:flex; align-items:center; gap:8px;">
+                <span style="width:8px; height:8px; border-radius:2px; background:${p.color}; display:inline-block;"></span>
+                OmniCloud ${p.plan}
+              </span>
+              <span class="val">${p.count} users <span style="color:rgba(255,255,255,0.25); font-size:11px;">(${p.pct}%)</span></span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="info-block">
+          <h3>Monthly Revenue Trend</h3>
+          <div style="font-family:var(--mono); font-size:10px; color:rgba(255,255,255,0.3); margin-bottom:4px; letter-spacing:0.1em;">JAN — APR 2026</div>
+          <div class="mini-chart">
+            ${[30,42,55,72,68,85,91,76,88,95,100,89].map(h =>
+              `<div class="mini-bar" style="height:${h}%;"></div>`
+            ).join('')}
+          </div>
+          <div class="info-row" style="margin-top:12px;"><span class="key">Best Month</span><span class="val" style="color:#00cc66;">April 2026</span></div>
+          <div class="info-row"><span class="key">Growth Rate</span><span class="val" style="color:#00cc66;">+22% MoM</span></div>
+          <div class="info-row"><span class="key">Y1 Target Progress</span><span class="val">1.4%</span></div>
+        </div>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <span class="data-table-title">Top Products by Units Sold</span>
+          <span class="data-table-badge">${PRODUCTS_DB.length} Products</span>
+        </div>
+        <table class="dt">
+          <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Units</th><th>Rating</th></tr></thead>
+          <tbody>
+            ${PRODUCTS_DB.sort((a,b) => b.units - a.units).slice(0,6).map(p => `
+              <tr>
+                <td style="color:var(--white); font-weight:500;">${p.name}</td>
+                <td>${p.category}</td>
+                <td style="font-family:var(--mono); color:var(--cyan);">${p.price}</td>
+                <td>${p.units.toLocaleString()}</td>
+                <td><span style="color:#ffaa44;">${'★'.repeat(Math.round(p.reviews))}</span> ${p.reviews}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderAdminUsers() {
+    return `
+      <div class="panel-header">
+        <div class="label">Admin — User Management</div>
+        <h1>All Users</h1>
+        <p>Complete registry of OmniID accounts. ${USERS_DB.length} total accounts.</p>
+      </div>
+
+      <div class="stat-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card"><div class="stat-label">Total Accounts</div><div class="stat-val">${USERS_DB.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Active</div><div class="stat-val">${USERS_DB.filter(u=>u.status==='active').length}</div></div>
+        <div class="stat-card"><div class="stat-label">Enterprise</div><div class="stat-val">${USERS_DB.filter(u=>u.plan==='Enterprise').length}</div></div>
+        <div class="stat-card"><div class="stat-label">Total Devices</div><div class="stat-val">${USERS_DB.reduce((s,u)=>s+u.devices,0)}</div></div>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <span class="data-table-title">User Registry</span>
+          <span class="data-table-badge">Live Data</span>
+        </div>
+        <table class="dt">
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Plan</th><th>Devices</th><th>Storage</th><th>Joined</th><th>Status</th></tr></thead>
+          <tbody>
+            ${USERS_DB.map(u => `
+              <tr>
+                <td style="font-family:var(--mono); font-size:11px; color:rgba(255,255,255,0.3);">${u.id}</td>
+                <td style="color:var(--white); font-weight:500;">${u.name}${u.role==='admin' ? ' <span class="tag tag-cyan" style="font-size:9px;">CEO</span>' : ''}</td>
+                <td style="font-family:var(--mono); font-size:11px;">${u.email}</td>
+                <td><span class="tag ${u.plan==='Enterprise'?'tag-cyan':u.plan==='Pro'?'tag-blue':u.plan==='Plus'?'tag-orange':'tag-gray'}">${u.plan}</span></td>
+                <td style="font-family:var(--mono);">${u.devices}</td>
+                <td style="font-family:var(--mono); font-size:11px; color:rgba(255,255,255,0.5);">${u.storage}</td>
+                <td style="font-family:var(--mono); font-size:11px; color:rgba(255,255,255,0.4);">${u.joined}</td>
+                <td><span class="tag ${u.status==='active'?'tag-green':'tag-red'}">${u.status}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderAdminProducts() {
+    return `
+      <div class="panel-header">
+        <div class="label">Admin — Product Catalog</div>
+        <h1>Product Management</h1>
+        <p>All ${PRODUCTS_DB.length} OmniTech products — sales data, ratings, and catalog status.</p>
+      </div>
+
+      <div class="stat-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card"><div class="stat-label">Total Products</div><div class="stat-val">${PRODUCTS_DB.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Units Sold YTD</div><div class="stat-val">${PRODUCTS_DB.reduce((s,p)=>s+p.units,0).toLocaleString()}</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Rating</div><div class="stat-val">${(PRODUCTS_DB.reduce((s,p)=>s+p.reviews,0)/PRODUCTS_DB.length).toFixed(1)}</div></div>
+        <div class="stat-card"><div class="stat-label">Categories</div><div class="stat-val">4</div></div>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <span class="data-table-title">Full Product Catalog</span>
+          <span class="data-table-badge">All Active</span>
+        </div>
+        <table class="dt">
+          <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Units Sold</th><th>Avg Rating</th><th>Status</th></tr></thead>
+          <tbody>
+            ${PRODUCTS_DB.map(p => `
+              <tr>
+                <td style="color:var(--white); font-weight:500;">${p.name}</td>
+                <td><span class="tag ${p.category==='Enterprise'?'tag-cyan':p.category==='Immersive'?'tag-blue':p.category==='Smart Home'?'tag-orange':'tag-gray'}">${p.category}</span></td>
+                <td style="font-family:var(--mono); color:var(--cyan);">${p.price}</td>
+                <td style="font-family:var(--mono);">${p.units}</td>
+                <td><span style="color:#ffaa44; font-size:12px;">${'★'.repeat(Math.round(p.reviews))}</span><span style="font-family:var(--mono); font-size:11px; margin-left:4px;">${p.reviews}</span></td>
+                <td><span class="tag tag-green">${p.status}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderAdminReviews() {
+    return `
+      <div class="panel-header">
+        <div class="label">Admin — Moderation</div>
+        <h1>Reviews & Content</h1>
+        <p>Product review moderation queue. Approve, flag, or remove user-submitted reviews.</p>
+      </div>
+
+      <div class="stat-row" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card"><div class="stat-label">Total Reviews</div><div class="stat-val">${REVIEWS_DB.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Approval</div><div class="stat-val">${REVIEWS_DB.filter(r=>r.status==='pending').length}</div></div>
+        <div class="stat-card"><div class="stat-label">Approved</div><div class="stat-val">${REVIEWS_DB.filter(r=>r.status==='approved').length}</div></div>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <span class="data-table-title">Review Queue</span>
+          <span class="data-table-badge">${REVIEWS_DB.filter(r=>r.status==='pending').length} Pending</span>
+        </div>
+        <table class="dt">
+          <thead><tr><th>Product</th><th>User</th><th>Rating</th><th>Review</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            ${REVIEWS_DB.map(r => `
+              <tr>
+                <td style="color:var(--white); font-weight:500; white-space:nowrap;">${r.product}</td>
+                <td style="font-size:12px;">${r.user}</td>
+                <td style="color:#ffaa44; font-size:13px;">${'★'.repeat(r.rating)}</td>
+                <td style="font-size:12px; max-width:240px; color:rgba(255,255,255,0.55);">${r.text.substring(0,80)}${r.text.length>80?'…':''}</td>
+                <td style="font-family:var(--mono); font-size:11px; color:rgba(255,255,255,0.3); white-space:nowrap;">${r.date}</td>
+                <td><span class="tag ${r.status==='approved'?'tag-green':'tag-orange'}">${r.status}</span></td>
+                <td><button class="toggle-btn" style="font-size:9px; padding:3px 10px;" onclick="alert('Review action applied.')">${r.status==='pending'?'Approve':'View'}</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderAdminFinance() {
+    return `
+      <div class="panel-header">
+        <div class="label">Admin — Finance</div>
+        <h1>Financial Dashboard</h1>
+        <p>Revenue, projections, and subscription metrics. Based on OmniTech Operating Plan FY2026–2030.</p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">Revenue YTD</div><div class="stat-val" style="font-size:20px;">$2.85M</div><div class="stat-sub">Y1 Target: $200M</div></div>
+        <div class="stat-card"><div class="stat-label">MRR</div><div class="stat-val" style="font-size:20px;">$238K</div><div class="stat-delta up">+22% MoM</div></div>
+        <div class="stat-card"><div class="stat-label">Hardware Revenue</div><div class="stat-val" style="font-size:20px;">$2.3M</div><div class="stat-sub">80.7% of total</div></div>
+        <div class="stat-card"><div class="stat-label">Software / SaaS</div><div class="stat-val" style="font-size:20px;">$550K</div><div class="stat-sub">19.3% of total</div></div>
+      </div>
+
+      <div class="data-table-wrap" style="margin-bottom:24px;">
+        <div class="data-table-header">
+          <span class="data-table-title">5-Year Revenue Projections</span>
+          <span class="data-table-badge">Operating Plan</span>
+        </div>
+        <table class="dt">
+          <thead><tr><th>Year</th><th>Revenue Target</th><th>Hardware</th><th>Software / SaaS</th><th>Gross Margin</th><th>Headcount</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--cyan); font-family:var(--mono);">Y1 2026</td><td style="color:var(--white); font-weight:600;">$200M</td><td>$140M</td><td>$60M</td><td>38%</td><td>120</td></tr>
+            <tr><td style="font-family:var(--mono);">Y2 2027</td><td style="color:var(--white);">$600M</td><td>$400M</td><td>$200M</td><td>44%</td><td>310</td></tr>
+            <tr><td style="font-family:var(--mono);">Y3 2028</td><td style="color:var(--white);">$1.4B</td><td>$850M</td><td>$550M</td><td>49%</td><td>520</td></tr>
+            <tr><td style="font-family:var(--mono);">Y4 2029</td><td style="color:var(--white);">$2.5B</td><td>$1.4B</td><td>$1.1B</td><td>54%</td><td>700</td></tr>
+            <tr><td style="font-family:var(--mono);">Y5 2030</td><td style="color:var(--white);">$4.0B</td><td>$2.0B</td><td>$2.0B</td><td>58%</td><td>700+</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <span class="data-table-title">Subscription Revenue by Plan</span>
+          <span class="data-table-badge">Live</span>
+        </div>
+        <table class="dt">
+          <thead><tr><th>Plan</th><th>Price</th><th>Subscribers</th><th>Monthly Revenue</th><th>Annual Run Rate</th></tr></thead>
+          <tbody>
+            <tr><td>OmniCloud Free</td><td style="font-family:var(--mono);">$0.00</td><td>3</td><td style="color:rgba(255,255,255,0.3);">$0</td><td style="color:rgba(255,255,255,0.3);">$0</td></tr>
+            <tr><td>OmniCloud Plus</td><td style="font-family:var(--mono);">$4.99</td><td>3</td><td style="color:var(--cyan); font-family:var(--mono);">$14.97</td><td style="font-family:var(--mono);">$179.64</td></tr>
+            <tr><td>OmniCloud Pro</td><td style="font-family:var(--mono);">$9.99</td><td>3</td><td style="color:var(--cyan); font-family:var(--mono);">$29.97</td><td style="font-family:var(--mono);">$359.64</td></tr>
+            <tr><td>Enterprise</td><td style="font-family:var(--mono);">Custom</td><td>3</td><td style="color:var(--cyan); font-family:var(--mono);">$12,500+</td><td style="font-family:var(--mono);">$150,000+</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderAdminSystem() {
+    return `
+      <div class="panel-header">
+        <div class="label">Admin — Infrastructure</div>
+        <h1>System Health</h1>
+        <p>OmniCloud infrastructure status, uptime, and security monitoring across all regions.</p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">API Uptime</div><div class="stat-val" style="color:#00cc66;">99.97%</div><div class="stat-sub">Last 30 days</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Latency</div><div class="stat-val">14ms</div><div class="stat-sub">Global P95</div></div>
+        <div class="stat-card"><div class="stat-label">Active Devices</div><div class="stat-val">47</div><div class="stat-sub">Online right now</div></div>
+        <div class="stat-card"><div class="stat-label">Security Events</div><div class="stat-val" style="color:#00cc66;">0</div><div class="stat-sub">No threats detected</div></div>
+      </div>
+
+      <div class="info-block" style="margin-bottom:20px;">
+        <h3>Service Status</h3>
+        ${[
+          { name: 'OmniCloud Sync API',      status: 'Operational', latency: '12ms' },
+          { name: 'OmniID Authentication',   status: 'Operational', latency: '8ms'  },
+          { name: 'OmniAI Inference Layer',  status: 'Operational', latency: '34ms' },
+          { name: 'OmniHome Automation Hub', status: 'Operational', latency: '18ms' },
+          { name: 'OmniDev API Gateway',     status: 'Operational', latency: '11ms' },
+          { name: 'OmniFleet MDM Service',   status: 'Operational', latency: '9ms'  },
+          { name: 'OmniCloud CDN',           status: 'Operational', latency: '4ms'  },
+          { name: 'Federated Learning Jobs', status: 'Operational', latency: 'N/A'  },
+        ].map(s => `
+          <div class="security-item">
+            <div class="security-item-left">
+              <h4>${s.name}</h4>
+              <p>Latency: ${s.latency} &nbsp;·&nbsp; All regions healthy</p>
+            </div>
+            <span class="tag tag-green">${s.status}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="info-block">
+        <h3>Security Monitor</h3>
+        ${[
+          { event: 'Zero-trust perimeter check — all endpoints passed', time: '2 min ago',  ok: true },
+          { event: 'OmniChip HSM key rotation completed across fleet',  time: '1 hour ago', ok: true },
+          { event: 'Federated learning round completed — 0 data egress', time: '3 hours ago', ok: true },
+          { event: 'Automated vulnerability scan — 0 critical findings', time: '6 hours ago', ok: true },
+          { event: 'SSL certificate renewal — all domains updated',     time: '2026-04-25', ok: true },
+        ].map(e => `
+          <div class="activity-item">
+            <div class="activity-dot" style="background:#00cc66;"></div>
+            <span class="activity-text">${e.event}</span>
+            <span class="activity-time">${e.time}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  SIGN OUT
+  // ═══════════════════════════════════════════════════════════
+  function signOut() {
+    localStorage.removeItem('omni_session');
+    sessionStorage.removeItem('omni_session');
+    window.location.href = 'signin.html';
+  }
+  </script>
+
+</body>
+</html>

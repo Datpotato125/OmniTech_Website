@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — OmniTech</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--dark);
+      position: relative;
+    }
+
+    .auth-page::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0,255,255,0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .auth-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 960px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid rgba(0,255,255,0.15);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 0 80px rgba(0,102,255,0.12), 0 0 160px rgba(0,255,255,0.04);
+    }
+
+    .auth-panel {
+      padding: 56px 48px;
+    }
+
+    .auth-brand {
+      border-right: 1px solid rgba(0,255,255,0.1);
+      background: linear-gradient(135deg, rgba(0,102,255,0.08) 0%, rgba(0,255,255,0.04) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .auth-brand-top .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .auth-brand-wordmark {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .auth-brand-wordmark span {
+      color: var(--cyan);
+    }
+
+    .auth-brand-tagline {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      margin-bottom: 48px;
+    }
+
+    .auth-feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .auth-feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+    }
+
+    .auth-feature-list li::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      min-width: 6px;
+      background: var(--cyan);
+      margin-top: 5px;
+    }
+
+    .auth-brand-bottom {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+    }
+
+    .auth-form-panel {
+      padding: 56px 48px;
+    }
+
+    .auth-form-header {
+      margin-bottom: 40px;
+    }
+
+    .auth-form-header .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .auth-form-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .auth-form-header p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--white);
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0,255,255,0.08);
+    }
+
+    .form-group input::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .form-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .form-checkbox input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    .form-checkbox span {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .form-link {
+      font-size: 13px;
+      color: var(--cyan);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .form-link:hover {
+      opacity: 0.75;
+    }
+
+    .btn-auth {
+      width: 100%;
+      display: block;
+      text-align: center;
+      padding: 14px 24px;
+      background: var(--blue);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      margin-bottom: 20px;
+      font-family: inherit;
+    }
+
+    .btn-auth:hover {
+      background: #0055dd;
+      box-shadow: 0 0 24px rgba(0,102,255,0.5);
+      transform: translateY(-1px);
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .auth-divider span {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .btn-biometric {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: transparent;
+      border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 2px;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+      margin-bottom: 32px;
+    }
+
+    .btn-biometric:hover {
+      border-color: var(--cyan);
+      color: var(--white);
+      box-shadow: 0 0 16px rgba(0,255,255,0.1);
+    }
+
+    .biometric-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      position: relative;
+    }
+
+    .biometric-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .auth-footer-text {
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .auth-footer-text a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .auth-footer-text a:hover {
+      opacity: 0.75;
+    }
+
+    .security-note {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(0,255,255,0.04);
+      border: 1px solid rgba(0,255,255,0.1);
+      border-radius: 2px;
+      margin-bottom: 28px;
+    }
+
+    .security-note .dot {
+      width: 6px;
+      height: 6px;
+      min-width: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .security-note span {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: rgba(0,255,255,0.7);
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 768px) {
+      .auth-container {
+        grid-template-columns: 1fr;
+      }
+
+      .auth-brand {
+        border-right: none;
+        border-bottom: 1px solid rgba(0,255,255,0.1);
+        padding: 40px 32px;
+      }
+
+      .auth-brand-wordmark {
+        font-size: 36px;
+      }
+
+      .auth-feature-list {
+        display: none;
+      }
+
+      .auth-brand-bottom {
+        display: none;
+      }
+
+      .auth-form-panel {
+        padding: 40px 32px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .auth-panel,
+      .auth-brand,
+      .auth-form-panel {
+        padding: 32px 24px;
+      }
+
+      .auth-wrap {
+        padding: 100px 16px 60px;
+      }
+    }
+  </style>
+</head>
+<body class="auth-page">
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">OmniTech</a>
+      <ul class="nav-links">
+        <li><a href="products.html">Products</a></li>
+        <li><a href="services.html">Platform</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="careers.html">Careers</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="signin.html" class="btn btn-primary" style="pointer-events:none; opacity:0.5;">Sign In</a>
+        <a href="signup.html" class="btn btn-outline">Create Account</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="auth-wrap">
+    <div class="auth-container">
+
+      <!-- Brand Panel -->
+      <div class="auth-panel auth-brand">
+        <div class="auth-brand-top">
+          <div class="label">OmniID — Unified Identity</div>
+          <div class="auth-brand-wordmark">Omni<span>Tech</span></div>
+          <p class="auth-brand-tagline">One identity. Every device. Your entire ecosystem — from OmniPhone to OmniHome — secured and connected through a single account.</p>
+          <ul class="auth-feature-list">
+            <li>Access OmniCloud storage, sync, and backup across all your devices</li>
+            <li>Seamless handoff between OmniPhone, OmniBook, OmniWatch, and OmniVR</li>
+            <li>Hardware-backed security with OmniChip HSM and zero-knowledge architecture</li>
+            <li>Manage OmniHome automations, connected appliances, and smart routines</li>
+            <li>OmniAI personalization that stays private with on-device federated learning</li>
+          </ul>
+        </div>
+        <div class="auth-brand-bottom">
+          OmniTech Corp — Exton, PA — Est. 2026
+        </div>
+      </div>
+
+      <!-- Form Panel -->
+      <div class="auth-panel auth-form-panel">
+        <div class="auth-form-header">
+          <div class="label">Authentication</div>
+          <h1>Sign in to OmniID</h1>
+          <p>Enter your credentials to access your account</p>
+        </div>
+
+        <div class="security-note">
+          <div class="dot"></div>
+          <span>Secured by OmniChip HSM — Zero-Trust Protocol Active</span>
+        </div>
+
+        <form id="signin-form" onsubmit="handleSignIn(event)">
+          <div class="form-group">
+            <label for="email">OmniID Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@omnitech.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <label class="form-checkbox">
+              <input type="checkbox" name="remember" />
+              <span>Keep me signed in</span>
+            </label>
+            <a href="#" class="form-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-auth">Sign In</button>
+        </form>
+
+        <div class="auth-divider">
+          <span>or</span>
+        </div>
+
+        <button class="btn-biometric" onclick="handleBiometric()">
+          <span class="biometric-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C9.24 2 7 4.24 7 7v1c-1.66 0-3 1.34-3 3v8c0 1.66 1.34 3 3 3h10c1.66 0 3-1.34 3-3v-8c0-1.66-1.34-3-3-3V7c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v1H9V7c0-1.66 1.34-3 3-3zm0 9a2 2 0 110 4 2 2 0 010-4z"/>
+            </svg>
+          </span>
+          Sign in with OmniID Biometrics
+        </button>
+
+        <p class="auth-footer-text">
+          No account yet? <a href="signup.html">Create your OmniID</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <div class="footer-logo">OmniTech</div>
+        <p class="footer-desc">Building the unified technology ecosystem for the next generation of human-computer interaction.</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Products</div>
+        <ul class="footer-links">
+          <li><a href="products.html#devices">Personal Devices</a></li>
+          <li><a href="products.html#home">Smart Home</a></li>
+          <li><a href="products.html#immersive">Immersive Computing</a></li>
+          <li><a href="products.html#enterprise">Enterprise</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Platform</div>
+        <ul class="footer-links">
+          <li><a href="services.html#omnios">OmniOS</a></li>
+          <li><a href="services.html#omni-ai">OmniAI</a></li>
+          <li><a href="services.html#omnicloud">OmniCloud</a></li>
+          <li><a href="services.html#omnidev">OmniDev</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Company</div>
+        <ul class="footer-links">
+          <li><a href="about.html">About</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>2026 OmniTech Corp. All rights reserved.</span>
+      <span>Exton, Pennsylvania</span>
+    </div>
+  </footer>
+
+  <script>
+    // Known accounts registry (simulates backend — CEO gets admin role)
+    const KNOWN_ACCOUNTS = {
+      'mvahora2023@gmail.com': {
+        name: 'Mahmadarsh Vahora',
+        role: 'admin',
+        title: 'Founder & Chief Executive Officer',
+        plan: 'Enterprise',
+        joined: '2026-01-15',
+        location: 'Exton, PA',
+        devices: ['OmniPhone Ultra', 'OmniBook Studio', 'OmniWatch', 'OmniGlass', 'OmniVR'],
+        storage_used: 847,
+        storage_total: 999999
+      }
+    };
+
+    function handleSignIn(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const remember = document.querySelector('input[name="remember"]').checked;
+
+      const btn = e.target.querySelector('.btn-auth');
+      btn.textContent = 'Authenticating...';
+      btn.style.opacity = '0.7';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        // Look up account or create generic user session
+        const known = KNOWN_ACCOUNTS[email];
+        const firstName = email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
+
+        const session = known ? { ...known, email } : {
+          name: firstName,
+          email,
+          role: 'user',
+          title: 'OmniTech Member',
+          plan: 'Free',
+          joined: new Date().toISOString().split('T')[0],
+          location: 'Unknown',
+          devices: [],
+          storage_used: 0,
+          storage_total: 50
+        };
+
+        const storage = remember ? localStorage : sessionStorage;
+        storage.setItem('omni_session', JSON.stringify(session));
+
+        window.location.href = 'account.html';
+      }, 1200);
+    }
+
+    function handleBiometric() {
+      const btn = document.querySelector('.btn-biometric');
+      const origHTML = btn.innerHTML;
+      btn.textContent = 'Scanning biometrics...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        // Simulate biometric — redirect as guest for demo
+        const session = {
+          name: 'OmniTech User',
+          email: 'biometric@omnitech.local',
+          role: 'user',
+          title: 'OmniTech Member',
+          plan: 'Free',
+          joined: new Date().toISOString().split('T')[0],
+          location: 'Unknown',
+          devices: [],
+          storage_used: 0,
+          storage_total: 50
+        };
+        sessionStorage.setItem('omni_session', JSON.stringify(session));
+        window.location.href = 'account.html';
+      }, 2000);
+    }
+  </script>
+
+</body>
+</html>
