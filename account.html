@@ -10,8 +10,7 @@
 
     /* ── Layout ── */
     .dash-wrap {
-      display: grid;
-      grid-template-columns: 240px 1fr;
+      display: block;
       min-height: 100vh;
       padding-top: 64px;
     }
@@ -158,6 +157,8 @@
       margin-left: 240px;
       padding: 40px 48px;
       min-height: calc(100vh - 64px);
+      width: calc(100vw - 240px);
+      box-sizing: border-box;
     }
 
     .dash-panel { display: none; }
@@ -611,9 +612,8 @@
     }
 
     @media (max-width: 900px) {
-      .dash-wrap { grid-template-columns: 1fr; }
       .sidebar { position: relative; width: 100%; height: auto; top: 0; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
-      .dash-main { margin-left: 0; padding: 28px 20px; }
+      .dash-main { margin-left: 0; padding: 28px 20px; width: 100%; }
     }
 
     @media (max-width: 600px) {
@@ -836,19 +836,26 @@
   //  USER PANELS
   // ═══════════════════════════════════════════════════════════
   function renderOverview() {
-    const storageUsed = session.storage_used || 0;
-    const storageTotal = session.storage_total || 50;
-    const storagePct = Math.min(100, Math.round((storageUsed / storageTotal) * 100));
-    const devCount = (session.devices || []).length;
-    const joined = session.joined || '2026-01-15';
+    // Pull from USERS_DB for admin, or fall back to session data
+    const dbUser = USERS_DB.find(u => u.email === session.email) || {};
+    const storageRaw = dbUser.storage || session.storage_used || '0 GB';
+    const storageUsed = parseFloat(storageRaw) || 0;
+    const storageUnit = storageRaw.includes('TB') ? 'TB' : 'GB';
+    const storageGB = storageUnit === 'TB' ? storageUsed * 1024 : storageUsed;
+    const storageTotal = session.plan === 'Enterprise' ? 1024 : session.plan === 'Pro' ? 200 : session.plan === 'Plus' ? 100 : 15;
+    const storagePct = Math.min(100, Math.round((storageGB / storageTotal) * 100));
+    const devCount = dbUser.devices || (session.devices || []).length || 0;
+    const joined = dbUser.joined || session.joined || '2026-01-15';
+    const today = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
 
     return `
       <div class="panel-header">
-        <div class="label">Account</div>
+        <div class="label">Account — OmniID Dashboard</div>
         <h1>Welcome back, ${session.name.split(' ')[0]}.</h1>
-        <p>Your OmniID dashboard — devices, storage, plan, and account security at a glance.</p>
+        <p>Your OmniID overview — devices, storage, plan status, and recent activity. Today is ${today}.</p>
       </div>
 
+      <!-- Quick Stats Row -->
       <div class="stat-row">
         <div class="stat-card">
           <div class="stat-label">Connected Devices</div>
@@ -857,61 +864,104 @@
         </div>
         <div class="stat-card">
           <div class="stat-label">Cloud Storage Used</div>
-          <div class="stat-val">${storageUsed >= 1000 ? (storageUsed/1024).toFixed(1) + ' TB' : storageUsed + ' GB'}</div>
-          <div class="stat-sub">of ${storageTotal >= 1000 ? (storageTotal/1024).toFixed(0) + ' TB' : storageTotal + ' GB'} total</div>
+          <div class="stat-val">${storageRaw}</div>
+          <div class="stat-sub">of ${storageTotal >= 1024 ? (storageTotal/1024).toFixed(0) + ' TB' : storageTotal + ' GB'} total</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Plan</div>
+          <div class="stat-label">Current Plan</div>
           <div class="stat-val" style="font-size:20px; padding-top:4px;">${session.plan || 'Free'}</div>
           <div class="stat-sub">OmniCloud subscription</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Member Since</div>
-          <div class="stat-val" style="font-size:18px; padding-top:4px;">${joined}</div>
-          <div class="stat-sub">OmniID creation date</div>
+          <div class="stat-label">Account Status</div>
+          <div class="stat-val" style="font-size:16px; padding-top:6px; color:#00cc66;">Active</div>
+          <div class="stat-sub">Member since ${joined}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Security Score</div>
+          <div class="stat-val" style="color:#00cc66;">98<span style="font-size:14px; color:rgba(255,255,255,0.4);">/100</span></div>
+          <div class="stat-sub">2FA + Biometrics enabled</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">OmniAI Usage</div>
+          <div class="stat-val" style="font-size:18px; padding-top:4px;">4,821</div>
+          <div class="stat-sub">Queries this month</div>
         </div>
       </div>
 
+      <!-- Account Info + Storage -->
       <div class="info-grid">
         <div class="info-block">
           <h3>Account Summary</h3>
           <div class="info-row"><span class="key">Full Name</span><span class="val">${session.name}</span></div>
           <div class="info-row"><span class="key">OmniID Email</span><span class="val">${session.email}</span></div>
-          <div class="info-row"><span class="key">Role</span><span class="val">${session.title || 'OmniTech Member'}</span></div>
-          <div class="info-row"><span class="key">Location</span><span class="val">${session.location || 'Not set'}</span></div>
+          <div class="info-row"><span class="key">Role / Title</span><span class="val">${session.title || (isAdmin ? 'Founder & Chief Executive Officer' : 'OmniTech Member')}</span></div>
+          <div class="info-row"><span class="key">Location</span><span class="val">${session.location || 'Exton, Pennsylvania'}</span></div>
           <div class="info-row"><span class="key">Account Type</span><span class="val"><span class="tag ${isAdmin ? 'tag-cyan' : 'tag-blue'}">${isAdmin ? 'Admin' : 'Standard'}</span></span></div>
+          <div class="info-row"><span class="key">OmniID</span><span class="val" style="font-family:var(--mono); font-size:11px;">${dbUser.id || 'USR-0001'}</span></div>
+          <div class="info-row"><span class="key">Member Since</span><span class="val">${joined}</span></div>
+          <div class="info-row"><span class="key">Next Renewal</span><span class="val">2026-05-15</span></div>
         </div>
         <div class="info-block">
           <h3>OmniCloud Storage</h3>
-          <div class="storage-bar-wrap">
+          <div class="storage-bar-wrap" style="margin-bottom:20px;">
             <div class="storage-label-row">
-              <span>${storageUsed >= 1000 ? (storageUsed/1024).toFixed(1) + ' TB' : storageUsed + ' GB'} used</span>
+              <span>${storageRaw} used</span>
               <span>${storagePct}%</span>
             </div>
-            <div class="storage-bar"><div class="storage-fill" style="width:${storagePct}%"></div></div>
-            <div class="storage-label-row" style="margin-top:8px;">
-              <span>Plan: OmniCloud ${session.plan || 'Free'}</span>
-              <span>${storageTotal >= 1000 ? (storageTotal/1024).toFixed(0) + ' TB' : storageTotal + ' GB'} total</span>
+            <div class="storage-bar" style="height:8px;"><div class="storage-fill" style="width:${storagePct}%"></div></div>
+            <div class="storage-label-row" style="margin-top:6px;">
+              <span>OmniCloud ${session.plan || 'Free'}</span>
+              <span>${storageTotal >= 1024 ? (storageTotal/1024).toFixed(0) + ' TB' : storageTotal + ' GB'} total</span>
             </div>
           </div>
+          <div class="info-row"><span class="key" style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#0066ff;display:inline-block;"></span>Photos &amp; Videos</span><span class="val" style="color:var(--cyan);">${Math.round(storageGB * 0.54)} GB</span></div>
+          <div class="info-row"><span class="key" style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#00ffff;display:inline-block;"></span>Device Backups</span><span class="val" style="color:var(--cyan);">${Math.round(storageGB * 0.28)} GB</span></div>
+          <div class="info-row"><span class="key" style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#7c66ff;display:inline-block;"></span>Documents</span><span class="val" style="color:var(--cyan);">${Math.round(storageGB * 0.12)} GB</span></div>
+          <div class="info-row"><span class="key" style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);display:inline-block;"></span>Other</span><span class="val" style="color:var(--cyan);">${Math.round(storageGB * 0.06)} GB</span></div>
           <div style="margin-top:16px;">
-            <div class="info-row"><span class="key">Photos & Videos</span><span class="val" style="color:var(--cyan);">${Math.round(storageUsed * 0.54)} GB</span></div>
-            <div class="info-row"><span class="key">Documents</span><span class="val" style="color:var(--cyan);">${Math.round(storageUsed * 0.18)} GB</span></div>
-            <div class="info-row"><span class="key">Device Backups</span><span class="val" style="color:var(--cyan);">${Math.round(storageUsed * 0.28)} GB</span></div>
+            <a href="pricing.html" class="btn btn-outline" style="font-size:12px;">Upgrade Plan</a>
           </div>
         </div>
       </div>
 
+      <!-- Quick Actions -->
+      <div class="info-block" style="margin-bottom:24px;">
+        <h3>Quick Actions</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-top:4px;">
+          ${[
+            { label: 'My Devices',     panel: 'devices',  color: '#00ffff' },
+            { label: 'Storage',        panel: 'storage',  color: '#4d94ff' },
+            { label: 'Billing & Plan', panel: 'payments', color: '#7c66ff' },
+            { label: 'Security',       panel: 'security', color: '#00cc66' },
+            { label: 'Activity Log',   panel: 'activity', color: '#ffaa44' },
+            { label: 'Profile',        panel: 'profile',  color: '#ff6699' },
+          ].map(a => `
+            <div onclick="renderPanel('${a.panel}')" style="padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.07); border-radius:2px; cursor:pointer; transition:border-color 0.2s, background 0.2s;" onmouseover="this.style.borderColor='${a.color}40'; this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'; this.style.background='rgba(255,255,255,0.02)'">
+              <div style="font-family:var(--mono); font-size:10px; color:${a.color}; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">Go to</div>
+              <div style="font-size:13px; font-weight:600; color:var(--white);">${a.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
       <div class="info-block" style="margin-bottom:24px;">
         <h3>Recent Activity</h3>
         <div class="activity-list">
-          ${ACTIVITY_LOG.slice(0, 4).map(a => `
+          ${ACTIVITY_LOG.slice(0, 5).map(a => `
             <div class="activity-item">
               <div class="activity-dot" style="background:${a.color};"></div>
-              <span class="activity-text">${a.text}</span>
+              <div style="flex:1;">
+                <div class="activity-text">${a.text}</div>
+                <div style="font-family:var(--mono); font-size:10px; color:rgba(255,255,255,0.2); margin-top:2px; letter-spacing:0.08em; text-transform:uppercase;">${a.type}</div>
+              </div>
               <span class="activity-time">${a.time}</span>
             </div>
           `).join('')}
+        </div>
+        <div style="margin-top:12px; text-align:right;">
+          <span onclick="renderPanel('activity')" style="font-family:var(--mono); font-size:11px; color:var(--cyan); cursor:pointer; letter-spacing:0.08em;">View Full Log →</span>
         </div>
       </div>
     `;
