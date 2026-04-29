@@ -595,8 +595,7 @@
           storage_total: 50
         };
 
-        const storage = remember ? localStorage : sessionStorage;
-        storage.setItem('omni_session', JSON.stringify(session));
+        localStorage.setItem('omni_session', JSON.stringify(session));
 
         window.location.href = 'account.html';
       }, 1200);
@@ -622,7 +621,7 @@
           storage_used: 0,
           storage_total: 50
         };
-        sessionStorage.setItem('omni_session', JSON.stringify(session));
+        localStorage.setItem('omni_session', JSON.stringify(session));
         window.location.href = 'account.html';
       }, 2000);
     }

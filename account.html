@@ -673,7 +673,7 @@
   // ═══════════════════════════════════════════════════════════
   //  SESSION GUARD
   // ═══════════════════════════════════════════════════════════
-  const raw = localStorage.getItem('omni_session') || sessionStorage.getItem('omni_session');
+  const raw = localStorage.getItem('omni_session');
   if (!raw) { window.location.href = 'signin.html'; }
 
   const session = JSON.parse(raw);
@@ -1658,7 +1658,6 @@
   // ═══════════════════════════════════════════════════════════
   function signOut() {
     localStorage.removeItem('omni_session');
-    sessionStorage.removeItem('omni_session');
     window.location.href = 'signin.html';
   }
   </script>
